@@ -1,6 +1,5 @@
 
-all:
-	gcc cclargs_lite.c
+all: smm
 
 run:
 	go run ./cmd/gglargs/ -NOUI -D "&" -python xflow "[For complete and up to date information on this command, see the man page by typing 'man xflow']" \
@@ -20,3 +19,15 @@ run:
 test:
 	go test ./...
 
+gglargs:
+	go build ./cmd/gglargs
+
+cclargs: cclargs_lite.c
+	gcc $< -o $@
+
+smm: star_minus_minus.c
+	gcc $< -Wno-unused-value -o smm
+	./smm
+
+clean:
+	rm -f smm cclargs gglargs

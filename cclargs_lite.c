@@ -978,7 +978,7 @@ int size;
    
    if(ncar <= size)
    {
-      *pttmp--;
+      pttmp--;
       while(ncar)
       {
          *scriptnom++ = *pttmp--;
