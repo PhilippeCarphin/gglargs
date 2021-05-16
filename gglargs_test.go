@@ -95,14 +95,14 @@ func TestExportBash(t *testing.T) {
 
 	s := strings.Builder{}
 	exportBASH(defs, posargs, &s)
-	expected := "k1='v1'\nk2='d2'\nset -- \"$@\" 'v2' 'v3'\n"
+	expected := `GGLARGS_OUT_KEYS='';GGLARGS_KEYS='k1 k2'; set nil ; shift ; set  v2  v3  ;  k1="v1" ; k2="d2" ;`
 	if s.String() != expected {
 		t.Fatalf("Export BASH produced wrong output, got \n%s", s.String())
 	}
 
 	autocomplete := strings.Builder{}
 	exportBashAutocomplete(defs, settings, &autocomplete)
-	b, err := ioutil.ReadFile("ref.sh")
+	b, err := ioutil.ReadFile("test_files/reference_autocomplete.sh")
 	if err != nil {
 		panic(err)
 	}

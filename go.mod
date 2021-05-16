@@ -1,3 +1,3 @@
-module gitlab.science.gc.ca/phc001/gglargs
+module gitlab.com/philippecarphin/gglargs
 
 go 1.16

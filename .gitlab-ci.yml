@@ -7,7 +7,7 @@ build:
   stage: build
   script:
 
-    - go test ./...
+    - make test
 
     - export GOOS=linux
     - export GOARCH=amd64

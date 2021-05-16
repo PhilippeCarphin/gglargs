@@ -1,4 +1,5 @@
-go run ./cmd/gglargs -D "" ord_soumet "[send a job for execution]"\
+#!/bin/bash
+./build/gglargs -D "" ord_soumet "[send a job for execution]"\
  -addstep "" "addstep" "[add co-scheduled step]"\
  -altcfgdir "" "" "[alternate config dir]"\
  -args "" "" "[arguments for job script]"\
@@ -9,7 +10,6 @@ go run ./cmd/gglargs -D "" ord_soumet "[send a job for execution]"\
  -coschedule "no" "yes" "[coscheduled job]"\
  -cpus "" "" "[processes(MxN) and cpus/process(O) MxNxO ]"\
  -custom "" "" "[custom parameter for sys config]"\
- -d_ "${TRUE_HOST:-${HOSTNAME%%.*}}" "${TRUE_HOST:-${HOSTNAME%%.*}}" "[synonym for mach ]"\
  -display "" "$DISPLAY" "[X windows display]"\
  -e "" "e" "[controls -e flag]"\
  -epilog "" "" "[job epilog]"\
@@ -20,15 +20,12 @@ go run ./cmd/gglargs -D "" ord_soumet "[send a job for execution]"\
  -iojob "1" "5" "[IO weight (0-9) 0=none, 9=IO hog]"\
  -jn "" "" "[job name]"\
  -jobcfg "" "" "[job configuration commands]"\
- -jobfile "$filnam" "" "[name of file to submit]"\
  -jobtar "lajob" "lajob" "[name of tar file from nosubmit]"\
  -keep "" "keep" "[keep job and script file at end of run]"\
  -l "no" "yes" "[job already has wrappers]"\
  -laststep "" "laststep" "[last co-scheduled step]"\
- -listing "${CRAYOUT:-${HOME}/listings}" "${HOME}/tmp" "[ directory for listings ]"\
  -m "" "" "[same as cm]"\
  -mach_ "" "" "[ target machine ]"\
- -mail "" "${DEFAULT_EMAIL_ADDRESS}" "[email address]"\
  -mpi "" mpi "[ MPI job ]"\
  -node "" "" "[job addressing]"\
  -noendwrap "y" "n" "[job end signal not required]"\
@@ -40,7 +37,6 @@ go run ./cmd/gglargs -D "" ord_soumet "[send a job for execution]"\
  -op "" "oper" "[job is operational flag]"\
  -p "" mpi "[same as mpi]"\
  -postfix ".out" "none" "[listing postfix]"\
- -ppid $$ $$ \
  -preempt "" "1" "[allow job to be preempted]"\
  -prefix NoNe MaChInEcLaSs "[listing prefix]"\
  -prio "" "" "[batch system specific job priority]" \
@@ -59,7 +55,6 @@ go run ./cmd/gglargs -D "" ord_soumet "[send a job for execution]"\
  -splitstd "n" "y" "[split stderr/stdout in listings]"\
  -sq "" "" "[alternate queue for submission]"\
  -ssmuse "" "" "[add extra environment]"\
- -step "de_$$" "" "[job step name]"\
  -sys "batch" "batch" "[system mode]"\
  -t "" "" "[job execution time (seconds)]"\
  -tag "" "" "[job tracking tag]"\

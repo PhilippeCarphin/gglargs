@@ -1,9 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	"gitlab.science.gc.ca/phc001/gglargs"
+	"gitlab.com/philippecarphin/gglargs"
 )
 
 func main() {
@@ -11,6 +12,7 @@ func main() {
 	autocomplete := os.Getenv("GGLARGS_GENERATE_AUTOCOMPLETE")
 
 	if autocomplete != "" {
+		fmt.Printf("PISS BUCKET\n")
 		err := gglargs.GenerateAutocomplete(os.Args, os.Stdout)
 		if err != nil {
 			panic(err)
@@ -21,6 +23,5 @@ func main() {
 			panic(err)
 		}
 	}
-
 
 }

@@ -234,15 +234,39 @@ func parseScriptArgs(defs []Definition, scriptArgs []string) []string {
 }
 
 func exportBASH(defs []Definition, posargs []string, w io.Writer) {
+	fmt.Fprintf(w, "GGLARGS_OUT_KEYS='';")
+	fmt.Fprintf(w, "GGLARGS_KEYS='")
+	for i, d := range defs {
+		if strings.HasSuffix(d.KeyName, "_") {
+			fmt.Fprintf(w, "%s", strings.TrimSuffix(d.KeyName, "_"))
+		} else {
+			fmt.Fprintf(w, "%s", d.KeyName)
+		}
+
+		if i != len(defs)-1 {
+			fmt.Fprint(w, " ")
+		}
+	}
+	fmt.Fprintf(w, "'; set nil ; shift ; ")
+
+	// fmt.Fprint(w, "set -- \"$@\"")
+	if len(posargs) > 0 {
+		fmt.Fprint(w, "set ")
+		for _, arg := range posargs {
+			fmt.Fprintf(w, " %s ", arg)
+		}
+		fmt.Fprintf(w, " ; ")
+	}
 	for _, d := range defs {
-		fmt.Fprintf(w, "%s='%s'\n", d.KeyName, d.Value)
+		var key string
+		if strings.HasSuffix(d.KeyName, "_") {
+			key = strings.TrimSuffix(d.KeyName, "_")
+		} else {
+			key = d.KeyName
+		}
+		fmt.Fprintf(w, " %s=\"%s\" ;", key, d.Value)
 	}
 
-	fmt.Fprint(w, "set -- \"$@\"")
-	for _, arg := range posargs {
-		fmt.Fprintf(w, " '%s'", arg)
-	}
-	fmt.Fprintf(w, "\n")
 }
 
 func exportBashAutocomplete(defs []Definition, settings SettingsDef, w io.Writer) {
