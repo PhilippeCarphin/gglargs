@@ -59,7 +59,7 @@ struct definition
     enum typecle type;
 };
 
-check_argv(char **argv){
+void check_argv(char **argv){
   if(*argv != NULL) return;
   fprintf(stderr,"cclargs: FATAL ERROR, argument expected, NULL found\n");
   exit(1);
