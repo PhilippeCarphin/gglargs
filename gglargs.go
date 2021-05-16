@@ -2,6 +2,7 @@ package gglargs
 
 import (
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -213,4 +214,16 @@ func parseScriptArgs(defs []Definition, scriptArgs []string) []string {
 
 	}
 	return posargs
+}
+
+func exportBASH(defs []Definition, posargs []string, w io.Writer) {
+	for _, d := range defs {
+		fmt.Fprintf(w, "%s='%s'\n", d.KeyName, d.Value)
+	}
+
+	fmt.Fprint(w, "set -- \"$@\"")
+	for _, arg := range posargs {
+		fmt.Fprintf(w, " '%s'", arg)
+	}
+	fmt.Fprintf(w, "\n")
 }

@@ -1,6 +1,7 @@
 package gglargs
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -74,6 +75,29 @@ func TestParseValues(t *testing.T) {
 	if len(posargs) != 2 {
 		t.Fatalf("Posargs should have had two values, got : '%#v'", posargs)
 	}
+}
+
+func TestExportBash(t *testing.T) {
+	args := []string{"./cclargs", "nomScript", "-k1", "d1", "[Kle 1]", "++", "-k1", "v1", "v2", "v3"}
+	remainingArgs, _, err := processInitialArgs(args)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defs, scriptArgs, err := processDefinitions(remainingArgs)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	posargs := parseScriptArgs(defs, scriptArgs)
+
+	s := strings.Builder{}
+	exportBASH(defs, posargs, &s)
+	expected := "k1='v1'\nset -- \"$@\" 'v2' 'v3'\n"
+	if s.String() != expected {
+		t.Fatalf("Export BASH produced wrong output, got \n%s", s.String())
+	}
+
 }
 func TestParseOptions(t *testing.T) {
 	args := []string{"cmd/gglargs/", "-NOUI", "-D", "&", "-python", "xflow", "[For complete and up to date information on this command, see the man page by typing 'man xflow']",
