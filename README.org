@@ -1,0 +1,44 @@
+#+TITLE: Go version of cclargs
+
+* Generage autocomplte
+
+Instead of its normal output, =gglargs= will output code to do an
+autocomplete.
+
+You can name this and override =__suggest_key_<KeyName>_values= that must
+set the variable =candidates=.
+
+We can create the file and edit it manually or genrate it automatically and
+override the fucntions in another file
+
+#+begin_src sh
+export GGLARGS_GENERAGE_AUTOCOMPLETE
+# - adapt your script so that it does not pollute the output
+#   and so that it quits after calling gglargs when the variable
+#   is set
+# - run the script (hopefully getting just the output of gglargs)
+#+end_src
+
+Now that you have a file =ord_soumet_autocomplete_base= from the output
+of the previous command, you can create a file like this
+#+begin_src sh
+source ord_soumet_autocomplete_base.sh
+__suggest_key_jobfile_values(){
+    candidates="one two three"
+}
+#+end_src
+
+where you override some definitions.
+
+Get as fancy as you like
+
+#+begin_src sh
+source ord_soumet_autocomplete_base.sh
+__suggest_key_jobfile_values(){
+    candidates="python3 some_script.py"
+}
+#+end_src
+
+- List files from a specific folder
+- The current day of the week
+- Sky is the limit

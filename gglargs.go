@@ -58,22 +58,39 @@ type Definition struct {
 	Value string
 }
 
-func Gglargs(args []string) error {
-	remainingArgs, settings, err := processInitialArgs(args)
+func GenerateArgumentValues(args []string, w io.Writer) error {
+	remainingArgs, _, err := processInitialArgs(args)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defs, scriptArgs, err := processDefinitions(remainingArgs)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	for _, d := range defs {
-		fmt.Printf("    %+v\n", d)
+	posargs := parseScriptArgs(defs, scriptArgs)
+
+	exportBASH(defs, posargs, w)
+
+	return nil
+}
+
+func GenerateAutocomplete(args []string, w io.Writer) error {
+
+	remainingArgs, settings, err := processInitialArgs(args)
+	if err != nil {
+		return err
 	}
-	fmt.Printf("ScriptArgs : %+v\n", scriptArgs)
-	fmt.Printf("Settings : %+v\n", settings)
+
+	defs, scriptArgs, err := processDefinitions(remainingArgs)
+	if err != nil {
+		return err
+	}
+
+	_ = parseScriptArgs(defs, scriptArgs)
+
+	exportBashAutocomplete(defs, settings, w)
 	return nil
 }
 

@@ -8,9 +8,19 @@ import (
 
 func main() {
 
-	err := gglargs.Gglargs(os.Args)
-	if err != nil {
-		panic(err)
+	autocomplete := os.Getenv("GGLARGS_GENERATE_AUTOCOMPLETE")
+
+	if autocomplete != "" {
+		err := gglargs.GenerateAutocomplete(os.Args, os.Stdout)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err := gglargs.GenerateArgumentValues(os.Args, os.Stdout)
+		if err != nil {
+			panic(err)
+		}
 	}
+
 
 }
