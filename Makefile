@@ -1,6 +1,6 @@
 
 all:
-	go build ./cmd/gglargs/
+	gcc cclargs_lite.c
 
 run:
 	go run ./cmd/gglargs/ -NOUI -D "&" -python xflow "[For complete and up to date information on this command, see the man page by typing 'man xflow']" \

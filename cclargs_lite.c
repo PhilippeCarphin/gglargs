@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #define VERSION 1
 
@@ -9,7 +10,7 @@
 #endif
 #define NOUI
 #ifdef NOUI
-vmenu()
+int vmenu()
 {
 printf("cclargs ERROR: Interactive mode NOT SUPPORTED\n");
 exit(1);
@@ -66,7 +67,7 @@ void check_argv(char **argv){
   exit(1);
 }
 
-main(argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {
@@ -308,7 +309,7 @@ int *status;
         if(egal_pointeur != (char *) NULL)
         {
            *egal_pointeur = '\0';
-           if((*argv)+1 == '\0')
+           if((*argv)+1 == NULL)
            {
                (*status)++;
                fprintf(stderr, "mauvais nom de clef\n");
@@ -323,7 +324,7 @@ int *status;
         }
         else
         {
-           if((*argv)+1 == '\0')
+           if((*argv)+1 == NULL)
            {
                fprintf(stderr, "mauvais nom de clef\n");
                (*status)++;
@@ -381,7 +382,7 @@ int *status;
       argv++;
     }
    i++;
-   defo[i].kle_nom = '\0';
+   defo[i].kle_nom = NULL;
    return(argv); 
 }
 
@@ -570,7 +571,7 @@ struct definition defo[];
    
    int i = 0, index = -1;
   
-   while(defo[i].kle_nom != '\0')
+   while(defo[i].kle_nom != NULL)
    {
       if(*defo[i].kle_nom == '_' ) {
         if(strcmp(keyname,defo[i].kle_nom+1) == 0)
@@ -770,7 +771,7 @@ char *help_general;
 
      fprintf(stderr,"%s [positionnels] %s\n",scriptnom,help_general);
    
-     while(defo[i].kle_nom != '\0')
+     while(defo[i].kle_nom != NULL)
      {
        desc = defo[i].kle_desc ? defo[i].kle_desc : "";
        if(*defo[i].kle_nom == '_') /* supprimer le _ au debut des cles de sortie */
@@ -927,7 +928,7 @@ char *scriptnom, *help_general;
 
     do
     {
-         status =  vmenu(scriptnom,cle,val,aide,nbliste,nfois);
+         status =  vmenu();
 
          if(status == -1)
          {
