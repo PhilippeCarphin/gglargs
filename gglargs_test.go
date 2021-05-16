@@ -1,6 +1,8 @@
 package gglargs
 
 import (
+	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 )
@@ -78,8 +80,8 @@ func TestParseValues(t *testing.T) {
 }
 
 func TestExportBash(t *testing.T) {
-	args := []string{"./cclargs", "nomScript", "-k1", "d1", "[Kle 1]", "++", "-k1", "v1", "v2", "v3"}
-	remainingArgs, _, err := processInitialArgs(args)
+	args := []string{"./cclargs", "nomScript", "-k1", "d1", "-k2", "d2", "[Kle 1]", "++", "-k1", "v1", "v2", "v3"}
+	remainingArgs, settings, err := processInitialArgs(args)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,11 +95,21 @@ func TestExportBash(t *testing.T) {
 
 	s := strings.Builder{}
 	exportBASH(defs, posargs, &s)
-	expected := "k1='v1'\nset -- \"$@\" 'v2' 'v3'\n"
+	expected := "k1='v1'\nk2='d2'\nset -- \"$@\" 'v2' 'v3'\n"
 	if s.String() != expected {
 		t.Fatalf("Export BASH produced wrong output, got \n%s", s.String())
 	}
 
+	autocomplete := strings.Builder{}
+	exportBashAutocomplete(defs, settings, &autocomplete)
+	b, err := ioutil.ReadFile("ref.sh")
+	if err != nil {
+		panic(err)
+	}
+	if autocomplete.String() != string(b) {
+		fmt.Printf("autocomplete.String() %s----\n", autocomplete.String())
+		t.Fatalf("Wrong output")
+	}
 }
 func TestParseOptions(t *testing.T) {
 	args := []string{"cmd/gglargs/", "-NOUI", "-D", "&", "-python", "xflow", "[For complete and up to date information on this command, see the man page by typing 'man xflow']",
