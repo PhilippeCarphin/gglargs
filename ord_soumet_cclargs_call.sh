@@ -1,0 +1,74 @@
+cclargs -D "" $0 "[send a job for execution]"\
+ -addstep "" "addstep" "[add co-scheduled step]"\
+ -altcfgdir "" "" "[alternate config dir]"\
+ -args "" "" "[arguments for job script]"\
+ -as "" "" "[submit job as another user]"\
+ -c "1" "1" "[same as cpus]"\
+ -clone "0" "100" "[max number of clones (0=none) ]"\
+ -cm "" "" "[memory (K/M/G bytes)]"\
+ -coschedule "no" "yes" "[coscheduled job]"\
+ -cpus "" "" "[processes(MxN) and cpus/process(O) MxNxO ]"\
+ -custom "" "" "[custom parameter for sys config]"\
+ -d_ "${TRUE_HOST:-${HOSTNAME%%.*}}" "${TRUE_HOST:-${HOSTNAME%%.*}}" "[synonym for mach ]"\
+ -display "" "$DISPLAY" "[X windows display]"\
+ -e "" "e" "[controls -e flag]"\
+ -epilog "" "" "[job epilog]"\
+ -firststep "" "lajob_steps" "[sum of previous job steps]"\
+ -geom "" "AUTO" "[MPI geometry file]"\
+ -image "" "" "[OS image to run job (if supported)]"\
+ -immediate "" "immediate" "[do not batch, use ssh with batch environment]"\
+ -iojob "1" "5" "[IO weight (0-9) 0=none, 9=IO hog]"\
+ -jn "" "" "[job name]"\
+ -jobcfg "" "" "[job configuration commands]"\
+ -jobfile "$filnam" "" "[name of file to submit]"\
+ -jobtar "lajob" "lajob" "[name of tar file from nosubmit]"\
+ -keep "" "keep" "[keep job and script file at end of run]"\
+ -l "no" "yes" "[job already has wrappers]"\
+ -laststep "" "laststep" "[last co-scheduled step]"\
+ -listing "${CRAYOUT:-${HOME}/listings}" "${HOME}/tmp" "[ directory for listings ]"\
+ -m "" "" "[same as cm]"\
+ -mach_ "" "" "[ target machine ]"\
+ -mail "" "${DEFAULT_EMAIL_ADDRESS}" "[email address]"\
+ -mpi "" mpi "[ MPI job ]"\
+ -node "" "" "[job addressing]"\
+ -noendwrap "y" "n" "[job end signal not required]"\
+ -norerun "yes" "yes" "[declare that the job is not rerunnable]"\
+ -norset "no" "yes" "[do not use cpu resource sets for task binding (LoadLeveler only)]" \
+ -nosubmit "" "nosubmit" "[ do not submit ]"\
+ -notify "error" "complete" \
+ -o "" "" "[same as args]"\
+ -op "" "oper" "[job is operational flag]"\
+ -p "" mpi "[same as mpi]"\
+ -postfix ".out" "none" "[listing postfix]"\
+ -ppid $$ $$ \
+ -preempt "" "1" "[allow job to be preempted]"\
+ -prefix NoNe MaChInEcLaSs "[listing prefix]"\
+ -prio "" "" "[batch system specific job priority]" \
+ -project "" "" "[batch system specific project]" \
+ -prolog "" "" "[job prolog]"\
+ -q "" "" "[same as queue]"\
+ -queue "" "" "[specify a specific queue/class]"\
+ -rerun "no" "yes" "[declare that the job is rerunnable]"\
+ -resid "" "" "[LoadLeveler reservation id]" \
+ -rsrc "" "" "[set of needed resources]"\
+ -retries "3" "3" "[set of maximum number of retries]"\
+ -seqno "1" "1" "[sequence number of first job (clones) ]"\
+ -share "" "s" "[can share node and/or be split across nodes e|s|p]"\
+ -shell "/bin/ksh" "" "[job shell for batch job]"\
+ -smt 1 2 "[smt factor]"\
+ -splitstd "n" "y" "[split stderr/stdout in listings]"\
+ -sq "" "" "[alternate queue for submission]"\
+ -ssmuse "" "" "[add extra environment]"\
+ -step "de_$$" "" "[job step name]"\
+ -sys "batch" "batch" "[system mode]"\
+ -t "" "" "[job execution time (seconds)]"\
+ -tag "" "" "[job tracking tag]"\
+ -threads "1" "1" "[number of threads per cpu(sge only)]"\
+ -tmpfs "" "255" "[fast temporary space (MB)]"\
+ -v "" "1" "[verbose]"\
+ -w "1" "1" "[same as t but in mins]"\
+ -waste "" "100" "[acceptable percentage of wasted cpus]"\
+ -with "" "" "[batch subsystem to use (GridEngine LoadLeveler UnixBatch)]"\
+ -wrapdir "${HOME}/.ord_soumet.d/wrap" "" "[job wrapper directories]"\
+ -xterm "" "xterm" "[start an xterm in job]"\
+  ++ $extra $*
