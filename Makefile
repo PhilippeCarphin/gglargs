@@ -10,7 +10,7 @@ all: $(execs)
 
 $(build_dir)/%.o: $(cclargs_src_dir)/%.c
 	$(call make_echo_build_c_object)
-	gcc -c $< -o $@
+	@gcc -c $< -o $@
 
 $(build_dir)/cclargs: $(build_dir)/cclargs_lite.o
 	$(call make_echo_link_c_executable)

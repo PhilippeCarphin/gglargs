@@ -3,6 +3,54 @@
 #include <ctype.h>
 #include <unistd.h>
 
+char *template = "\
+__complete_gitlab-runner() { \n\
+    # This is the function that will be called when we press TAB. \n\
+    # \n\
+    # It's purpose is # to examine the current command line (as represented by the  \n\
+    # array COMP_WORDS) and to determine what the autocomplete should reply through \n\
+    # the array COMPREPLY. \n\
+    # \n\
+    # This function is organized with subroutines who  are responsible for setting  \n\
+    # the 'candidates' variable. \n\
+    # \n\
+    # The compgen then filters out the candidates that don't begin with the word we are \n\
+    # completing. In this case, if '--' is one of the words, we set empty candidates, \n\
+    # otherwise, we look at the previous word and delegate # to candidate-setting functions \n\
+ \n\
+	COMPREPLY=() \n\
+ \n\
+	# We use the current word to filter out suggestions \n\
+    local cur=\"${COMP_WORDS[COMP_CWORD]}\" \n\
+ \n\
+	# Compgen: takes the list of candidates and selects those matching ${cur}. \n\
+	# Once COMPREPLY is set, the shell does the rest. \n\
+	COMPREPLY=( $(compgen -W \"$(__suggest_candidates)\" -- ${cur})) \n\
+ \n\
+	return 0 \n\
+} \n\
+ \n\
+__suggest_candidates(){ \n\
+    # We use the current word to decide what to do \n\
+    local cur=\"${COMP_WORDS[COMP_CWORD]}\" \n\
+    if __dash_dash_in_words ; then \n\
+        return \n\
+    fi \n\
+ \n\
+    option=$(__get_current_option) \n\
+    if [[ \"$option\" != \"\" ]] ; then \n\
+        __suggest_gitlab-runner_args_for ${option} \n\
+    else \n\
+        if [[ \"$cur\" = -* ]] ; then \n\
+            __suggest_gitlab-runner_options \n\
+        elif [[ $COMP_CWORD == 1 ]] ; then \n\
+            __suggest_gitlab-runner_subcommand \n\
+        else \n\
+            true \n\
+        fi \n\
+    fi \n\
+} \n\
+";
 #define VERSION 1
 
 #ifndef _XOPEN_SOURCE_EXTENDED
@@ -66,6 +114,7 @@ void check_argv(char **argv){
   fprintf(stderr,"cclargs: FATAL ERROR, argument expected, NULL found\n");
   exit(1);
 }
+int imprime_autocompletion(struct definition *defo);
 
 int main(argc, argv)
 int argc;
@@ -247,10 +296,28 @@ if(interp== shell) {
  
   if(interp == python) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
   if(interp == perl) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
-  imprime(defo);
+  char *autocomplete = getenv("CCLARGS_GENERATE_AUTOCOMPLETE");
+  // if(0 && autocomplete == NULL || autocomplete[0] == '\0'){
+  if(0){
+      imprime(defo);
+  } else {
+      imprime_autocompletion(defo);
+  }
   printf("%s",OUTBUF);
 /*   fprintf(stderr,"Number of characters on stdout=%d\n",strlen(OUTBUF));    */
   return(0);
+}
+
+int imprime_autocompletion(struct definition *defo){
+
+    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "%s", template);
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "PISS BUCKET\n");
+    // for(int i = 0; i < 80 ; ++i){
+    for(struct definition *d = defo; d->kle_nom != NULL; d++){
+        OUTBUFPTR+=sprintf(OUTBUFPTR, "d->kle_nom=%s\n", d->kle_nom);
+    }
+    return 0;
 }
 
 
