@@ -4,6 +4,7 @@ build_dir = build
 cclargs_src_dir = cclargs_src
 execs = $(build_dir)/gglargs $(build_dir)/cclargs
 
+.PHONY: $(build_dir)/ord_soumet.cclargs $(build_dir)/ord_soumet.gglargs
 
 
 all: $(execs)
@@ -40,7 +41,7 @@ $(build_dir)/ord_soumet.cclargs: $(build_dir)/cclargs
 
 $(build_dir)/ord_soumet.gglargs: $(build_dir)/gglargs
 	$(call make_echo_color_bold,blue,"Generating $@")
-	@GGLARGS_GENERATE_AUTOCOMPLETE=""  ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
+	@GGLARGS_GENERATE_AUTOCOMPLETE="1"  ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
 
 smm: cclargs_src/star_minus_minus.c
 	$(call make_echo_color_bold,white,"Building executable")

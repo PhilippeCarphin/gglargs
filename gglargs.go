@@ -129,6 +129,8 @@ func handleOneKey(remainingArgs []string) ([]string, Definition, error) {
 		def.KeyName = remainingArgs[0][1:]
 	}
 
+	def.KeyName = strings.TrimSuffix(def.KeyName, "_")
+
 	for i := 1; ; i++ {
 
 		// End of the whole argument list
@@ -232,8 +234,7 @@ func parseScriptArgs(defs []Definition, scriptArgs []string) []string {
 	}
 	return posargs
 }
-
-func exportBASH(defs []Definition, posargs []string, w io.Writer) {
+func exportBASHKeys(defs []Definition, w io.Writer) {
 	fmt.Fprintf(w, "GGLARGS_OUT_KEYS='';")
 	fmt.Fprintf(w, "GGLARGS_KEYS='")
 	for i, d := range defs {
@@ -247,7 +248,12 @@ func exportBASH(defs []Definition, posargs []string, w io.Writer) {
 			fmt.Fprint(w, " ")
 		}
 	}
-	fmt.Fprintf(w, "'; set nil ; shift ; ")
+	fmt.Fprintf(w, "'")
+}
+
+func exportBASH(defs []Definition, posargs []string, w io.Writer) {
+	exportBASHKeys(defs, w)
+	fmt.Fprintf(w, "; set nil ; shift ; ")
 
 	// fmt.Fprint(w, "set -- \"$@\"")
 	if len(posargs) > 0 {
@@ -273,24 +279,24 @@ func exportBashAutocomplete(defs []Definition, settings SettingsDef, w io.Writer
 	// DRIVER FUNCTION
 	fmt.Fprintf(w, `#!/bin/bash
 
+# This is the function that will be called when we press TAB.
+#
+# It's purpose is # to examine the current command line (as represented by the
+# array COMP_WORDS) and to determine what the autocomplete should reply through
+# the array COMPREPLY.
+#
+# This function is organized with subroutines who  are responsible for setting
+# the 'candidates' variable.
+#
+# The compgen then filters out the candidates that don't begin with the word we are
+# completing. In this case, if '--' is one of the words, we set empty candidates,
+# otherwise, we look at the previous word and delegate # to candidate-setting functions
 __complete_%s() {
-    # This is the function that will be called when we press TAB.
-    #
-    # It's purpose is # to examine the current command line (as represented by the 
-    # array COMP_WORDS) and to determine what the autocomplete should reply through
-    # the array COMPREPLY.
-    #
-    # This function is organized with subroutines who  are responsible for setting 
-    # the 'candidates' variable.
-    #
-    # The compgen then filters out the candidates that don't begin with the word we are
-    # completing. In this case, if '--' is one of the words, we set empty candidates,
-    # otherwise, we look at the previous word and delegate # to candidate-setting functions
 
 	COMPREPLY=()
 
 	# We use the current word to filter out suggestions
-    local cur="${COMP_WORDS[COMP_CWORD]}"
+	local cur="${COMP_WORDS[COMP_CWORD]}"
 
 	# Compgen: takes the list of candidates and selects those matching ${cur}.
 	# Once COMPREPLY is set, the shell does the rest.
@@ -300,46 +306,46 @@ __complete_%s() {
 }
 
 __suggest_%s_candidates(){
-    # We use the current word to decide what to do
-    local cur="${COMP_WORDS[COMP_CWORD]}"
-    if __dash_dash_in_words ; then
-        return
-    fi
+	# We use the current word to decide what to do
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	if __dash_dash_in_words ; then
+		return
+	fi
 
-    option=$(__get_current_option)
-    if [[ "$option" != "" ]] ; then
-        __suggest_%s_args_for ${option}
-    else
-        if [[ "$cur" = -* ]] ; then
-            __suggest_%s_options
-        fi
-    fi
+	option=$(__get_current_option)
+	if [[ "$option" != "" ]] ; then
+		__suggest_%s_args_for_option ${option}
+	else
+		if [[ "$cur" = -* ]] ; then
+			__suggest_%s_options
+		fi
+	fi
 
-    echo "$candidates"
+	echo "$candidates"
 }
 
 __dash_dash_in_words(){
-    for ((i=0;i<COMP_CWORD-1;i++)) ; do
-        w=${COMP_WORD[$i]}
-        if [[ "$w" == "--" ]] ; then
-            return 0
-        fi
-    done
-    return 1
+	for ((i=0;i<COMP_CWORD-1;i++)) ; do
+		w=${COMP_WORD[$i]}
+		if [[ "$w" == "--" ]] ; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 __get_current_option(){
 	# The word before that
 	local prev="${COMP_WORDS[COMP_CWORD-1]}"
-    if [[ "$prev" == -* ]] ; then
-        echo "$prev"
-    fi
+	if [[ "$prev" == -* ]] ; then
+		echo "$prev"
+	fi
 }
 
 `, settings.ScriptNom, settings.ScriptNom, settings.ScriptNom, settings.ScriptNom, settings.ScriptNom)
 
 	// COMPLETE OPTIONS
-	fmt.Fprintf(w, ` __suggest_%s_options(){
+	fmt.Fprintf(w, `__suggest_%s_options(){
 	candidates="`, settings.ScriptNom)
 	for _, d := range defs {
 		fmt.Fprintf(w, " -%s", d.KeyName)
@@ -349,15 +355,18 @@ __get_current_option(){
 
 `)
 
-	fmt.Fprintf(w, `__suggest_%s_args_for(){
-	case "$1" in 
+	// suggest_${scriptNom}_args_for_option option
+	// case
+	// for loop with case for each argument
+	fmt.Fprintf(w, `__suggest_%s_args_for_option(){
+	case "$1" in
 `, settings.ScriptNom)
 
 	for _, d := range defs {
 		fmt.Fprintf(w, `		-%s)
-			__suggest_key_%s_values
+			__suggest_%s_key_%s_values
 			;;
-`, d.KeyName, d.KeyName)
+`, d.KeyName, settings.ScriptNom, d.KeyName)
 	}
 
 	fmt.Fprintf(w, `	esac
@@ -365,13 +374,15 @@ __get_current_option(){
 
 `)
 
+	// __suggest_key_${kle_nom}_values
+	// One for each key
 	for _, d := range defs {
-		fmt.Fprintf(w, `__suggest_key_%s_values(){
+		fmt.Fprintf(w, `__suggest_%s_key_%s_values(){
 	# User defines completions for options by setting candidates
 	candidates=""
 }
 
-`, d.KeyName)
+`, settings.ScriptNom, d.KeyName)
 	}
 
 	fmt.Fprintf(w, "complete -o default -F __complete_%s %s\n", settings.ScriptNom, settings.ScriptNom)

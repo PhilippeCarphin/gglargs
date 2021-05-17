@@ -3,69 +3,71 @@
 #include <ctype.h>
 #include <unistd.h>
 
-char *template = "\n\
-__complete_%s() { \n\
-    # This is the function that will be called when we press TAB. \n\
-    # \n\
-    # It's purpose is # to examine the current command line (as represented by the  \n\
-    # array COMP_WORDS) and to determine what the autocomplete should reply through \n\
-    # the array COMPREPLY. \n\
-    # \n\
-    # This function is organized with subroutines who  are responsible for setting  \n\
-    # the 'candidates' variable. \n\
-    # \n\
-    # The compgen then filters out the candidates that don't begin with the word we are \n\
-    # completing. In this case, if '--' is one of the words, we set empty candidates, \n\
-    # otherwise, we look at the previous word and delegate # to candidate-setting functions \n\
- \n\
-	COMPREPLY=() \n\
- \n\
-	# We use the current word to filter out suggestions \n\
-    local cur=\"${COMP_WORDS[COMP_CWORD]}\" \n\
- \n\
-	# Compgen: takes the list of candidates and selects those matching ${cur}. \n\
-	# Once COMPREPLY is set, the shell does the rest. \n\
-	COMPREPLY=( $(compgen -W \"$(__suggest_%s_candidates)\" -- ${cur})) \n\
- \n\
-	return 0 \n\
-} \n\
- \n\
-__suggest_%s_candidates(){ \n\
-    # We use the current word to decide what to do \n\
-    local cur=\"${COMP_WORDS[COMP_CWORD]}\" \n\
-    if __dash_dash_in_words ; then \n\
-        return \n\
-    fi \n\
- \n\
-    option=$(__get_current_option) \n\
-    if [[ \"$option\" != \"\" ]] ; then \n\
-        __suggest_%s_args_for ${option} \n\
-    else \n\
-        if [[ \"$cur\" = -* ]] ; then \n\
-            __suggest_%s_options \n\
-        fi \n\
-    fi \n\
- \n\
-    echo \"$candidates\" \n\
-} \n\
- \n\
-__dash_dash_in_words(){ \n\
-    for ((i=0;i<COMP_CWORD-1;i++)) ; do \n\
-        w=${COMP_WORD[$i]} \n\
-        if [[ \"$w\" == \"--\" ]] ; then \n\
-            return 0 \n\
-        fi \n\
-    done \n\
-    return 1 \n\
-} \n\
- \n\
-__get_current_option(){ \n\
-	# The word before that \n\
-	local prev=\"${COMP_WORDS[COMP_CWORD-1]}\" \n\
-    if [[ \"$prev\" == -* ]] ; then \n\
-        echo \"$prev\" \n\
-    fi \n\
-}\n";
+char *template = "#!/bin/bash\n\
+\n\
+# This is the function that will be called when we press TAB.\n\
+#\n\
+# It's purpose is # to examine the current command line (as represented by the\n\
+# array COMP_WORDS) and to determine what the autocomplete should reply through\n\
+# the array COMPREPLY.\n\
+#\n\
+# This function is organized with subroutines who  are responsible for setting\n\
+# the 'candidates' variable.\n\
+#\n\
+# The compgen then filters out the candidates that don't begin with the word we are\n\
+# completing. In this case, if '--' is one of the words, we set empty candidates,\n\
+# otherwise, we look at the previous word and delegate # to candidate-setting functions\n\
+__complete_%s() {\n\
+\n\
+	COMPREPLY=()\n\
+\n\
+	# We use the current word to filter out suggestions\n\
+	local cur=\"${COMP_WORDS[COMP_CWORD]}\"\n\
+\n\
+	# Compgen: takes the list of candidates and selects those matching ${cur}.\n\
+	# Once COMPREPLY is set, the shell does the rest.\n\
+	COMPREPLY=( $(compgen -W \"$(__suggest_%s_candidates)\" -- ${cur}))\n\
+\n\
+	return 0\n\
+}\n\
+\n\
+__suggest_%s_candidates(){\n\
+	# We use the current word to decide what to do\n\
+	local cur=\"${COMP_WORDS[COMP_CWORD]}\"\n\
+	if __dash_dash_in_words ; then\n\
+		return\n\
+	fi\n\
+\n\
+	option=$(__get_current_option)\n\
+	if [[ \"$option\" != \"\" ]] ; then\n\
+		__suggest_%s_args_for_option ${option}\n\
+	else\n\
+		if [[ \"$cur\" = -* ]] ; then\n\
+			__suggest_%s_options\n\
+		fi\n\
+	fi\n\
+\n\
+	echo \"$candidates\"\n\
+}\n\
+\n\
+__dash_dash_in_words(){\n\
+	for ((i=0;i<COMP_CWORD-1;i++)) ; do\n\
+		w=${COMP_WORD[$i]}\n\
+		if [[ \"$w\" == \"--\" ]] ; then\n\
+			return 0\n\
+		fi\n\
+	done\n\
+	return 1\n\
+}\n\
+\n\
+__get_current_option(){\n\
+	# The word before that\n\
+	local prev=\"${COMP_WORDS[COMP_CWORD-1]}\"\n\
+	if [[ \"$prev\" == -* ]] ; then\n\
+		echo \"$prev\"\n\
+	fi\n\
+}\n\
+\n";
 
 #define VERSION 1
 
@@ -151,6 +153,7 @@ char **argv;
   int status = 0;  /* nombre d'erreurs rencontrees */
 
   struct definition defo[NKLEMAX];
+  char *autocomplete = getenv("CCLARGS_GENERATE_AUTOCOMPLETE");
 
 
 /*initialisation des structures de definition  */
@@ -238,13 +241,13 @@ char **argv;
          exit (0);
       }
     }
-if(interp== shell) {
+if((interp == shell) && (autocomplete == NULL || autocomplete[0] == '\0')) {
    /*
      print list of OUTPUT keys
    */
    OUTBUFPTR+=sprintf(OUTBUFPTR,"CCLARGS_OUT_KEYS='");
    for(i=0;i<=NKLES;i++){
-     if(*defo[i].kle_nom == '_') {
+	     if(*defo[i].kle_nom == '_') {
    /*
        defo[i].kle_nom++;
    */
@@ -265,7 +268,10 @@ if(interp== shell) {
 }
 
   /* recuperation des arguments en mode positionnel */
-  pointeur = positionel(pointeur);
+	
+	if(autocomplete == NULL || autocomplete[0] == '\0'){
+	  pointeur = positionel(pointeur);
+	}
 
   /* recuperation des arguments en mode equivalence */
   pointeur = equivalence(pointeur, defo, scriptnom, &status);
@@ -312,7 +318,6 @@ if(interp== shell) {
  
   if(interp == python) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
   if(interp == perl) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
-  char *autocomplete = getenv("CCLARGS_GENERATE_AUTOCOMPLETE");
   if(autocomplete == NULL || autocomplete[0] == '\0'){
   // if(0){
       imprime(defo);
@@ -326,30 +331,37 @@ if(interp== shell) {
 
 int imprime_autocompletion(struct definition *defo, char *scriptnom){
 
-    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+    // PRINT THE TEMPLATE
     OUTBUFPTR+=sprintf(OUTBUFPTR, template, scriptnom,scriptnom,scriptnom,scriptnom,scriptnom);
 
 
 	// COMPLETE OPTIONS
-    OUTBUFPTR+=sprintf(OUTBUFPTR, " __suggest_%s_options(){ \n\
-	candidates=\"", scriptnom);
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "__suggest_%s_options(){\n\tcandidates=\"", scriptnom);
     for(struct definition *d = defo; d->kle_nom != NULL; d++){
         OUTBUFPTR+=sprintf(OUTBUFPTR, " -%s", d->kle_nom);
     }
-    OUTBUFPTR+=sprintf(OUTBUFPTR, "\"");
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "\"\n}\n");
 
-	OUTBUFPTR+=sprintf(OUTBUFPTR, "__suggest_%s_args_for(){", scriptnom);
+	// suggest_${scriptNom}_args_for_option OPTION
+	// case
+	// for loop with case for each argument
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "\n__suggest_%s_args_for_option(){\n\tcase \"$1\" in\n", scriptnom);
+    for(struct definition *d = defo; d->kle_nom != NULL; d++){
+        OUTBUFPTR+=sprintf(OUTBUFPTR, "\t\t-%s)\n\t\t\t__suggest_%s_key_%s_values\n\t\t\t;;\n", d->kle_nom, scriptnom, d->kle_nom);
+    }
 
-	// for _, d := range defs {
-	// 	fmt.Fprintf(w, " -%s", d.KeyName)
-	// }
-	// fmt.Fprintf(w, `"
-    // OUTBUFPTR+=sprintf(OUTBUFPTR, "PISS BUCKET\n");
-    // for(int i = 0; i < 80 ; ++i){
-    // for(struct definition *d = defo; d->kle_nom != NULL; d++){
-    //     OUTBUFPTR+=sprintf(OUTBUFPTR, "d->kle_nom=%s\n", d->kle_nom);
-    // }
-    return 0;
+    OUTBUFPTR+=sprintf(OUTBUFPTR, "\tesac\n}\n");
+
+    for(struct definition *d = defo; d->kle_nom != NULL; d++){
+        OUTBUFPTR+=sprintf(OUTBUFPTR, "\n__suggest_%s_key_%s_values(){\n\
+	# User defines completions for options by setting candidates\n\
+	candidates=\"\"\n\
+}\n", scriptnom, d->kle_nom);
+    }
+
+	OUTBUFPTR+=sprintf(OUTBUFPTR, "\ncomplete -o default -F __complete_%s %s\n", scriptnom, scriptnom);
+
+	return 0;
 }
 
 
