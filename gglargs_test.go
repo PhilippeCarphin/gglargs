@@ -107,7 +107,7 @@ func TestExportBash(t *testing.T) {
 		panic(err)
 	}
 	if autocomplete.String() != string(b) {
-		fmt.Printf("autocomplete.String() %s----\n", autocomplete.String())
+		fmt.Printf("autocomplete.String()\n%s----\n", autocomplete.String())
 		t.Fatalf("Wrong output")
 	}
 }
