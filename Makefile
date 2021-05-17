@@ -1,6 +1,6 @@
 include colors.mk
 
-all: build/gglargs
+all: build/gglargs build/cclargs
 
 build/%.o: cclargs_src/%.c
 	$(call make_echo_color,green,"Build C object $@")
@@ -19,7 +19,7 @@ build/gglargs: gglargs.go cmd/gglargs/main.go
 
 test: gotest demo
 
-gotest: build/gglargs
+gotest:
 	$(call make_echo_color_bold,cyan,"Test: Running GO unit tests")
 	@go test ./...
 	@echo "Built target $@"
