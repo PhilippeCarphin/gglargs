@@ -313,8 +313,8 @@ if(interp== shell) {
   if(interp == python) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
   if(interp == perl) OUTBUFPTR+=sprintf(OUTBUFPTR,"]");
   char *autocomplete = getenv("CCLARGS_GENERATE_AUTOCOMPLETE");
-  // if(0 && autocomplete == NULL || autocomplete[0] == '\0'){
-  if(0){
+  if(autocomplete == NULL || autocomplete[0] == '\0'){
+  // if(0){
       imprime(defo);
   } else {
       imprime_autocompletion(defo, scriptnom);
@@ -337,8 +337,6 @@ int imprime_autocompletion(struct definition *defo, char *scriptnom){
         OUTBUFPTR+=sprintf(OUTBUFPTR, " -%s", d->kle_nom);
     }
     OUTBUFPTR+=sprintf(OUTBUFPTR, "\"");
-
-    OUTBUFPTR+=sprintf(OUTBUFPTR, "__suggest_%s_args_for() {\n  return 0; \n}\n)", scriptnom );
 
 	OUTBUFPTR+=sprintf(OUTBUFPTR, "__suggest_%s_args_for(){", scriptnom);
 
