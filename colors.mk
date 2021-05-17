@@ -31,3 +31,15 @@ endef
 define success
 	@echo "\033[32m✓\033[0m"
 endef
+define make_echo_build_c_object
+	$(call make_echo_color,green,"Building C object $@")
+endef
+define make_echo_link_c_executable
+	$(call make_echo_color_bold,green,"Linking C executable $@")
+endef
+define make_echo_generate_file
+	$(call make_echo_color_bold,blue,"Generating $@")
+endef
+define make_echo_run_test
+	$(call make_echo_color_bold,cyan,$(1))
+endef

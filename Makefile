@@ -1,39 +1,46 @@
 include colors.mk
 
-all: build/gglargs build/cclargs
+build_dir = build
+cclargs_src_dir = cclargs_src
+execs = $(build_dir)/gglargs $(build_dir)/cclargs
 
-build/%.o: cclargs_src/%.c
-	$(call make_echo_color,green,"Build C object $@")
-	@gcc -c $< -o $@
 
-build/cclargs: build/cclargs_lite.o
-	$(call make_echo_color_bold,green,"Linking C executable $@")
+
+all: $(execs)
+
+$(build_dir)/%.o: $(cclargs_src_dir)/%.c
+	$(call make_echo_build_c_object)
+	gcc -c $< -o $@
+
+$(build_dir)/cclargs: $(build_dir)/cclargs_lite.o
+	$(call make_echo_link_c_executable)
 	@gcc $< -o $@
 	@echo "Built target $@"
 
-build/gglargs: gglargs.go cmd/gglargs/main.go
-	$(call make_echo_color_bold,green,"Building go executable $@")
-	@go build ./cmd/gglargs
-	@mv gglargs $@
+$(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
+	$(call make_echo_generate_file)
+	@cd build && go build ../cmd/gglargs
 	@echo "Built target $@"
 
 test: gotest demo
 
 gotest:
-	$(call make_echo_color_bold,cyan,"Test: Running GO unit tests")
+	$(call make_echo_run_test,"Running GO unit tests")
 	@go test ./...
 	@echo "Built target $@"
 
-demo: build/gglargs build/cclargs
-	$(call make_echo_color_bold,cyan,"Test: Comparng output of cclargs and gglargs for ord_soumet")
-	$(call make_echo_color,white,"Doing ord_soumets cclargs call")
-	@./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > build/a.txt 2>/dev/null
-
-	$(call make_echo_color,white,"Doing the same thing with gglargs")
-	@GGLARGS_GENERATE_AUTOCOMPLETE=""  ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > build/b.txt 2>/dev/null
-
-	@diff build/a.txt build/b.txt
+demo: build/ord_soumet.gglargs build/ord_soumet.cclargs
+	$(call make_echo_run_test,"Comparng output of cclargs and gglargs for ord_soumet")
+	@diff $^
 	@echo "Built target $@"
+
+$(build_dir)/ord_soumet.cclargs: $(build_dir)/cclargs
+	$(call make_echo_color_bold,blue,"Generating $@")
+	@./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
+
+$(build_dir)/ord_soumet.gglargs: $(build_dir)/gglargs
+	$(call make_echo_color_bold,blue,"Generating $@")
+	@GGLARGS_GENERATE_AUTOCOMPLETE=""  ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
 
 smm: cclargs_src/star_minus_minus.c
 	$(call make_echo_color_bold,white,"Building executable")
