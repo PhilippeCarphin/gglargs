@@ -349,10 +349,6 @@ __get_current_option(){
 
 `)
 
-	fmt.Fprintf(w, `__suggest_%s_args_for(){
-	case "$1" in 
-`, settings.ScriptNom)
-
 	for _, d := range defs {
 		fmt.Fprintf(w, `		-%s)
 			__suggest_key_%s_values
