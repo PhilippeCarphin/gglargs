@@ -92,12 +92,12 @@ func GenerateArgumentValues(args []string, w io.Writer) error {
 
 func GenerateHelp(defs []Definition, settings SettingsDef, w io.Writer) error {
 
-	fmt.Fprintf(w, " *** SEQUENCE D'APPEL ***\n\n")
+	fmt.Fprintf(w, "\n *** SEQUENCE D'APPEL ***\n\n")
 	fmt.Fprintf(w, "%s [positionnels] %s\n", settings.ScriptNom, settings.HelpGeneral)
 	for _, d := range defs {
 		fmt.Fprintf(w, " IN       -%s [%s:%s] %s\n", d.KeyName, d.KeyDefault, d.KeyAlternateDefault, d.KeyDescription)
 	}
-	fmt.Fprintf(w, "          [-- positionnels]\n")
+	fmt.Fprintf(w, "          [-- positionnels]\n\n")
 	return nil
 }
 
@@ -170,7 +170,7 @@ func handleOneKey(remainingArgs []string) ([]string, Definition, error) {
 
 		// Everything after the key name is either another default or the description
 		if strings.HasPrefix(arg, "[") {
-			def.KeyDescription = arg
+			def.KeyDescription = strings.Trim(arg, "[]")
 		} else {
 			if firstDefaultSet {
 				def.KeyAlternateDefault = arg

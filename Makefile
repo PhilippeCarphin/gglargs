@@ -18,8 +18,19 @@ $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
 	$(at) cd build && go build ../cmd/gglargs
 
 # TEST TARGETS
-check: check_gounittest check_output check_completion
+check: check_gounittest check_output check_completion check_help
 	$(at) $(MAKE) -C $(cclargs_src_dir) --no-print-directory check_unittest
+
+check_help: $(build_dir)/cclargs_help.txt $(build_dir)/gglargs_help.txt
+	$(call make_echo_run_test,"Comparng output $^")
+	$(at)diff $^
+	$(call success)
+$(build_dir)/cclargs_help.txt: $(build_dir)/cclargs
+	$(call make_echo_generate_file)
+	$(at)./test_files/ord_soumet_cclargs_call.sh -h 2>&1 1>/dev/null | sed 's/ *$$//' > $@
+$(build_dir)/gglargs_help.txt: $(build_dir)/gglargs
+	$(call make_echo_generate_file)
+	$(at)./test_files/ord_soumet_gglargs_call.sh -h 2>&1 1>/dev/null | sed 's/ *$$//' > $@
 
 # Run all Test* go functions in all test_*.go files
 check_gounittest:

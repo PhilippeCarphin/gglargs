@@ -1,6 +1,6 @@
 #!/bin/bash
 echo =================== ord_soumet version ${Version}  =================
-./build/gglargs -D "" ord_soumet "[send a job for execution]"\
+./build/gglargs -D "~" ord_soumet "[send a job for execution]"\
  -addstep "" "addstep" "[add co-scheduled step]"\
  -altcfgdir "" "" "[alternate config dir]"\
  -args "" "" "[arguments for job script]"\
