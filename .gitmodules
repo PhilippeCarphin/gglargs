@@ -1,6 +1,3 @@
-[submodule "color-makefile"]
-	path = color-makefile
-	url = /Users/pcarphin/Documents/GitHub/color-makefile/
 [submodule "cclargs"]
 	path = cclargs
 	url = git@gitlab.com:philippecarphin/cclargs-autocomplete
