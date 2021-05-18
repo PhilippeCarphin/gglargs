@@ -1,7 +1,7 @@
-include colors.mk
+include color-makefile/colors.mk
 
 build_dir = build
-cclargs_src_dir = cclargs_src
+cclargs_src_dir = cclargs
 
 .PHONY: $(build_dir)/ord_soumet.cclargs $(build_dir)/ord_soumet.gglargs
 
@@ -9,10 +9,9 @@ cclargs_src_dir = cclargs_src
 all: $(build_dir)/gglargs $(build_dir)/cclargs
 
 # EXECUTABLE TARGETS
-$(build_dir)/cclargs: $(build_dir)/cclargs_lite.o $(build_dir)/main.o
-	$(call make_echo_link_c_executable)
-	@gcc $^ -o $@
-	@echo "Built target $@"
+$(build_dir)/cclargs:
+	$(MAKE) -C $(cclargs_src_dir)
+	cp $(cclargs_src_dir)/cclargs $@
 
 $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
 	$(call make_echo_generate_file)
@@ -77,4 +76,5 @@ $(build_dir)/%.o: $(cclargs_src_dir)/%.c
 	@gcc -c -DNOUI -DVERSION=1 $< -o $@
 
 clean:
-	rm -f smm cclargs gglargs a.txt b.txt build/*
+	rm -f build/*
+	make -C $(cclargs_src_dir) --no-print-directory
