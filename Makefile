@@ -10,63 +10,62 @@ all: $(build_dir)/gglargs $(build_dir)/cclargs
 
 # EXECUTABLE TARGETS
 $(build_dir)/cclargs:
-	$(MAKE) -C $(cclargs_src_dir) cclargs
-	cp $(cclargs_src_dir)/cclargs $@
+	$(at) $(MAKE) -C $(cclargs_src_dir) cclargs
+	$(at) cp $(cclargs_src_dir)/cclargs $@
 
 $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
 	$(call make_echo_generate_file)
-	@cd build && go build ../cmd/gglargs
-	@echo "Built target $@"
+	$(at) cd build && go build ../cmd/gglargs
 
 # TEST TARGETS
 check: check_gounittest check_output check_completion
-	$(MAKE) -C $(cclargs_src_dir) --no-print-directory check_unittest
+	$(at) $(MAKE) -C $(cclargs_src_dir) --no-print-directory check_unittest
 
 # Run all Test* go functions in all test_*.go files
 check_gounittest:
 	$(call make_echo_run_test,"Running GO unit tests")
-	@go test ./...
+	$(at)go test ./... >/dev/null
 	$(call success)
 
 # Compare normal outputs
 check_output: $(build_dir)/cclargs_output.sh $(build_dir)/gglargs_output.sh
 	$(call make_echo_run_test,"Comparng output $^")
-	@diff $^
+	$(at)diff $^
 	$(call success)
 $(build_dir)/cclargs_output.sh: $(build_dir)/cclargs
 	$(call make_echo_generate_file)
-	@CCLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
+	$(at)CCLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
 $(build_dir)/gglargs_output.sh: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
-	@GGLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
+	$(at)GGLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
 
 # Compare generated autocomplete scripts
 check_completion: $(build_dir)/cclargs_ord_soumet_completion.bash $(build_dir)/gglargs_ord_soumet_completion.bash
 	$(call make_echo_run_test,"Comparng output $^")
-	@diff $^
+	$(at)diff $^
 	$(call success)
 $(build_dir)/cclargs_ord_soumet_completion.bash: $(build_dir)/cclargs
 	$(call make_echo_generate_file)
-	@CCLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 >> $@ 2>/dev/null
+	$(at)CCLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 >> $@ 2>/dev/null
 $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
-	@GGLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 >> $@
+	$(at)GGLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 >> $@
 
 
 # Demo for `*pttmp--`
 .PHONY: smm
 $(build_dir)/smm: $(build_dir)/star_minus_minus.o
 	$(call make_echo_link_c_executable)
-	@gcc $^ -o $@
+	$(at)gcc $^ -o $@
 check_smm: $(build_dir)/smm
 	$(call make_echo_run_test,"Running demo for '*pttmp--'")
-	@./$<
+	$(at)./$<
 
 # RULES
 $(build_dir)/%.o: $(cclargs_src_dir)/%.c
 	$(call make_echo_build_c_object)
-	@gcc -c -DNOUI -DVERSION=1 $< -o $@
+	$(at)gcc -c -DNOUI -DVERSION=1 $< -o $@
 
 clean:
-	rm -f build/*
-	make -C $(cclargs_src_dir) --no-print-directory $@
+	$(at) rm -f build/*
+	$(at) make -C $(cclargs_src_dir) --no-print-directory $@
