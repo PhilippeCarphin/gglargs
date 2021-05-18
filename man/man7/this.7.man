@@ -1,0 +1,61 @@
+.TH "Go version of cclargs" "1" 
+
+.SH "Generage autocomplete"
+.PP
+Instead of its normal output, \fIgglargs\fP will output code to do an
+autocomplete.
+
+.PP
+You can name this and override \fI__suggest_key_<KeyName>_values\fP that must
+set the variable \fIcandidates\fP.
+
+.PP
+We can create the file and edit it manually or genrate it automatically and
+override the fucntions in another file
+
+.RS
+.nf
+\fCexport GGLARGS_GENERAGE_AUTOCOMPLETE
+# - adapt your script so that it does not pollute the output
+#   and so that it quits after calling gglargs when the variable
+#   is set
+# - run the script (hopefully getting just the output of gglargs)
+\fP
+.fi
+.RE
+
+.PP
+Now that you have a file \fIord_soumet_autocomplete_base\fP from the output
+of the previous command, you can create a file like this
+.RS
+.nf
+\fCsource ord_soumet_autocomplete_base.sh
+__suggest_key_jobfile_values(){
+    candidates="one two three"
+}
+\fP
+.fi
+.RE
+
+.PP
+where you override some definitions.
+
+.PP
+Get as fancy as you like
+
+.RS
+.nf
+\fCsource ord_soumet_autocomplete_base.sh
+__suggest_key_jobfile_values(){
+    candidates="python3 some_script.py"
+}
+\fP
+.fi
+.RE
+
+.IP \(em 4
+List files from a specific folder
+.IP \(em 4
+The current day of the week
+.IP \(em 4
+Sky is the limit

@@ -1,6 +1,7 @@
 #+TITLE: Go version of cclargs
+#+EXPORT_FILE_NAME: man/man7/this.7.man
 
-* Generage autocomplte
+* Generage autocomplete
 
 Instead of its normal output, =gglargs= will output code to do an
 autocomplete.
