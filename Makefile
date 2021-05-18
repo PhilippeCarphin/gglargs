@@ -10,7 +10,7 @@ all: $(build_dir)/gglargs $(build_dir)/cclargs
 
 # EXECUTABLE TARGETS
 $(build_dir)/cclargs:
-	$(MAKE) -C $(cclargs_src_dir)
+	$(MAKE) -C $(cclargs_src_dir) cclargs
 	cp $(cclargs_src_dir)/cclargs $@
 
 $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
@@ -19,7 +19,8 @@ $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
 	@echo "Built target $@"
 
 # TEST TARGETS
-check: check_gounittest check_output check_completion check_smm check_cunittest
+check: check_gounittest check_output check_completion
+	$(MAKE) -C $(cclargs_src_dir) --no-print-directory check_unittest
 
 # Run all Test* go functions in all test_*.go files
 check_gounittest:
@@ -52,15 +53,6 @@ $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	@GGLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 >> $@
 
 
-# Unit tests for functions in cclargs_lite.c
-check_cunittest: $(build_dir)/cunittest
-	$(call make_echo_run_test,"Running unit test executable $<")
-	@./$<
-	$(call success)
-$(build_dir)/cunittest: $(build_dir)/cclargs_lite.o $(build_dir)/test.o
-	$(call make_echo_link_c_executable)
-	@gcc $^ -o $@
-
 # Demo for `*pttmp--`
 .PHONY: smm
 $(build_dir)/smm: $(build_dir)/star_minus_minus.o
@@ -77,4 +69,4 @@ $(build_dir)/%.o: $(cclargs_src_dir)/%.c
 
 clean:
 	rm -f build/*
-	make -C $(cclargs_src_dir) --no-print-directory
+	make -C $(cclargs_src_dir) --no-print-directory $@
