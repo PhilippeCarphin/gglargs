@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include "cclargs_lite.h"
 
 char *template = "#!/bin/bash\n\
 \n\
@@ -69,12 +70,9 @@ __get_current_option(){\n\
 }\n\
 \n";
 
-#define VERSION 1
-
 #ifndef _XOPEN_SOURCE_EXTENDED
 #define _XOPEN_SOURCE_EXTENDED 
 #endif
-#define NOUI
 #ifdef NOUI
 int vmenu()
 {
@@ -134,7 +132,7 @@ void check_argv(char **argv){
 }
 int imprime_autocompletion(struct definition *defo, char *scriptnom);
 
-int main(argc, argv)
+int cclargs_main(argc, argv)
 int argc;
 char **argv;
 {
@@ -1121,4 +1119,25 @@ struct definition defo[];
       return (result);
 }
 
-                
+#define TEST_FAIL 1
+#define TEST_SUCCESS 0
+int test_getnom(){
+	char *input = "/usr/local/bin/ord_soumet";
+	char *expected = "ord_soumet";
+	char result[1000];
+	getnom(result, input, 1000);
+
+	if(strcmp(result, expected) != 0){
+		printf("FAIL: expected '%s', got '%s'\n", expected, result);
+		return TEST_FAIL;
+	}
+
+	return TEST_SUCCESS;
+}
+
+int cclargs_test(int argc, char **argv){
+	int nb_fails = 0;
+	nb_fails += test_getnom();
+
+	return nb_fails;
+}

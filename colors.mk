@@ -32,10 +32,10 @@ define make_echo_color
 endef
 
 define big_success
-	@$(ECHO) "\033[1;32m✓\033[0m"
+	@$(ECHO) "$@ : \033[1;32m✓\033[0m"
 endef
 define success
-	@$(ECHO) "\033[32m✓\033[0m"
+	@$(ECHO) "$@ : \033[32m✓\033[0m"
 endef
 define make_echo_build_c_object
 	$(call make_echo_color,green,"Building C object $@")
@@ -47,5 +47,5 @@ define make_echo_generate_file
 	$(call make_echo_color_bold,blue,"Generating $@")
 endef
 define make_echo_run_test
-	$(call make_echo_color_bold,cyan,$(1))
+	$(call make_echo_color_bold,cyan,$@ : $(1))
 endef
