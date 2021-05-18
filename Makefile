@@ -8,6 +8,7 @@ cclargs_src_dir = cclargs_src
 
 all: $(build_dir)/gglargs $(build_dir)/cclargs
 
+# EXECUTABLE TARGETS
 $(build_dir)/cclargs: $(build_dir)/cclargs_lite.o
 	$(call make_echo_link_c_executable)
 	@gcc $< -o $@
@@ -18,44 +19,47 @@ $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
 	@cd build && go build ../cmd/gglargs
 	@echo "Built target $@"
 
+# TEST TARGETS
+check: check_gounittest check_output check_completion check_smm
 
-check: check_gounittest check_output check_completion
-
+# Run all Test* go functions in all test_*.go files
 check_gounittest:
 	$(call make_echo_run_test,"Running GO unit tests")
 	@go test ./...
 	@echo "Built target $@"
 
+# Compare normal outputs
 check_output: $(build_dir)/cclargs_output.sh $(build_dir)/gglargs_output.sh
 	$(call make_echo_run_test,"Comparng output $^")
 	@diff $^
 	@echo "Built target $@"
+$(build_dir)/cclargs_output.sh: $(build_dir)/cclargs
+	$(call make_echo_generate_file)
+	@CCLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
+$(build_dir)/gglargs_output.sh: $(build_dir)/gglargs
+	$(call make_echo_generate_file)
+	@GGLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
+
+# Compare generated autocomplete scripts
 check_completion: $(build_dir)/cclargs_ord_soumet_completion.bash $(build_dir)/gglargs_ord_soumet_completion.bash
 	$(call make_echo_run_test,"Comparng output $^")
 	@diff $^
 	@echo "Built target $@"
-
-$(build_dir)/cclargs_output.sh: $(build_dir)/cclargs
-	$(call make_echo_generate_file)
-	@CCLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
 $(build_dir)/cclargs_ord_soumet_completion.bash: $(build_dir)/cclargs
 	$(call make_echo_generate_file)
 	@CCLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 >> $@ 2>/dev/null
-
-$(build_dir)/gglargs_output.sh: $(build_dir)/gglargs
-	$(call make_echo_generate_file)
-	@GGLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
 $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
 	@GGLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 >> $@
 
+# Demo for `*pttmp--`
 .PHONY: smm
 $(build_dir)/smm: $(build_dir)/star_minus_minus.o
 	$(call make_echo_link_c_executable)
 	@gcc $^ -o $@
-smm: $(build_dir)/smm
+check_smm: $(build_dir)/smm
 	$(call make_echo_run_test,"Running demo for '*pttmp--'")
-	$(build_dir)/smm
+	@./$<
 
 # RULES
 $(build_dir)/%.o: $(cclargs_src_dir)/%.c
