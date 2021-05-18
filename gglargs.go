@@ -3,6 +3,7 @@ package gglargs
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -59,25 +60,6 @@ type Definition struct {
 }
 
 func GenerateArgumentValues(args []string, w io.Writer) error {
-	remainingArgs, _, err := processInitialArgs(args)
-	if err != nil {
-		return err
-	}
-
-	defs, scriptArgs, err := processDefinitions(remainingArgs)
-	if err != nil {
-		return err
-	}
-
-	posargs := parseScriptArgs(defs, scriptArgs)
-
-	exportBASH(defs, posargs, w)
-
-	return nil
-}
-
-func GenerateAutocomplete(args []string, w io.Writer) error {
-
 	remainingArgs, settings, err := processInitialArgs(args)
 	if err != nil {
 		return err
@@ -88,7 +70,48 @@ func GenerateAutocomplete(args []string, w io.Writer) error {
 		return err
 	}
 
-	_ = parseScriptArgs(defs, scriptArgs)
+	if len(scriptArgs) > 0 {
+		switch scriptArgs[0] {
+		case "-h":
+			GenerateHelp(defs, settings, os.Stderr)
+			fmt.Fprintf(os.Stdout, " exit 0;")
+			os.Exit(0)
+		case "-generate-autocomplete":
+			GenerateAutocomplete(args, w)
+			fmt.Fprintf(os.Stdout, " exit 0;")
+			os.Exit(0)
+		}
+	}
+
+	posargs := parseScriptArgs(defs, scriptArgs)
+
+	exportBASH(defs, posargs, w)
+
+	return nil
+}
+
+func GenerateHelp(defs []Definition, settings SettingsDef, w io.Writer) error {
+
+	fmt.Fprintf(w, " *** SEQUENCE D'APPEL ***\n\n")
+	fmt.Fprintf(w, "%s [positionnels] %s\n", settings.ScriptNom, settings.HelpGeneral)
+	for _, d := range defs {
+		fmt.Fprintf(w, " IN       -%s [%s:%s] %s\n", d.KeyName, d.KeyDefault, d.KeyAlternateDefault, d.KeyDescription)
+	}
+	fmt.Fprintf(w, "          [-- positionnels]\n")
+	return nil
+}
+
+func GenerateAutocomplete(args []string, w io.Writer) error {
+
+	remainingArgs, settings, err := processInitialArgs(args)
+	if err != nil {
+		return err
+	}
+
+	defs, _, err := processDefinitions(remainingArgs)
+	if err != nil {
+		return err
+	}
 
 	exportBashAutocomplete(defs, settings, w)
 	return nil
@@ -177,6 +200,12 @@ func processInitialArgs(args []string) ([]string, SettingsDef, error) {
 
 	if myArgs[0] == "-D" {
 		Settings.Delimiter = myArgs[1]
+		fmt.Fprintf(os.Stderr, "Changing multi-value argument delimiter from : to ")
+		if Settings.Delimiter == "" {
+			fmt.Fprintf(os.Stderr, "(null)\n")
+		} else {
+			fmt.Fprintf(os.Stderr, "%s\n", Settings.Delimiter)
+		}
 		myArgs = myArgs[2:]
 	}
 
