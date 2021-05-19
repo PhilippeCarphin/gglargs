@@ -3,7 +3,7 @@ include color-makefile/colors.mk
 build_dir = build
 cclargs_src_dir = cclargs
 
-.PHONY: $(build_dir)/ord_soumet.cclargs $(build_dir)/ord_soumet.gglargs
+.PHONY: $(build_dir)/cclargs
 
 
 all: $(build_dir)/gglargs $(build_dir)/cclargs
@@ -45,10 +45,10 @@ check_output: $(build_dir)/cclargs_output.sh $(build_dir)/gglargs_output.sh
 	$(call success)
 $(build_dir)/cclargs_output.sh: $(build_dir)/cclargs
 	$(call make_echo_generate_file)
-	$(at)CCLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
+	$(at) ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 > $@ 2>/dev/null
 $(build_dir)/gglargs_output.sh: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
-	$(at)GGLARGS_GENERATE_AUTOCOMPLETE="" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 | sed 's/GGLARGS/CCLARGS/g' > $@ 2>/dev/null
+	$(at) ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 2>/dev/null | sed 's/GGLARGS/CCLARGS/g' > $@
 
 # Compare generated autocomplete scripts
 check_completion: $(build_dir)/cclargs_ord_soumet_completion.bash $(build_dir)/gglargs_ord_soumet_completion.bash
@@ -57,10 +57,10 @@ check_completion: $(build_dir)/cclargs_ord_soumet_completion.bash $(build_dir)/g
 	$(call success)
 $(build_dir)/cclargs_ord_soumet_completion.bash: $(build_dir)/cclargs
 	$(call make_echo_generate_file)
-	$(at)CCLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_cclargs_call.sh arg1 arg2 arg3 >> $@ 2>/dev/null
+	$(at) ./test_files/ord_soumet_cclargs_call.sh -generate-autocomplete 2> $@ 1>/dev/null
 $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
-	$(at)GGLARGS_GENERATE_AUTOCOMPLETE="1" ./test_files/ord_soumet_gglargs_call.sh arg1 arg2 arg3 >> $@
+	$(at) ./test_files/ord_soumet_gglargs_call.sh -generate-autocomplete 2> $@ 1>/dev/null
 
 
 # Demo for `*pttmp--`

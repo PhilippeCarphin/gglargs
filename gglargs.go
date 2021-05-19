@@ -59,7 +59,7 @@ type Definition struct {
 	Value string
 }
 
-func GenerateArgumentValues(args []string, w io.Writer) error {
+func Gglargs(args []string, w io.Writer) error {
 	remainingArgs, settings, err := processInitialArgs(args)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func GenerateArgumentValues(args []string, w io.Writer) error {
 			fmt.Fprintf(os.Stdout, " exit 0;")
 			os.Exit(0)
 		case "-generate-autocomplete":
-			GenerateAutocomplete(args, w)
+			GenerateAutocomplete(defs, settings, os.Stderr)
 			fmt.Fprintf(os.Stdout, " exit 0;")
 			os.Exit(0)
 		}
@@ -101,18 +101,7 @@ func GenerateHelp(defs []Definition, settings SettingsDef, w io.Writer) error {
 	return nil
 }
 
-func GenerateAutocomplete(args []string, w io.Writer) error {
-
-	remainingArgs, settings, err := processInitialArgs(args)
-	if err != nil {
-		return err
-	}
-
-	defs, _, err := processDefinitions(remainingArgs)
-	if err != nil {
-		return err
-	}
-
+func GenerateAutocomplete(defs []Definition, settings SettingsDef, w io.Writer) error {
 	exportBashAutocomplete(defs, settings, w)
 	return nil
 }
@@ -392,9 +381,7 @@ __get_current_option(){
 `, settings.ScriptNom)
 
 	for _, d := range defs {
-		fmt.Fprintf(w, `		-%s)
-			__suggest_%s_key_%s_values
-			;;
+		fmt.Fprintf(w, `		-%s) __suggest_%s_key_%s_values ;;
 `, d.KeyName, settings.ScriptNom, d.KeyName)
 	}
 
@@ -407,7 +394,6 @@ __get_current_option(){
 	// One for each key
 	for _, d := range defs {
 		fmt.Fprintf(w, `__suggest_%s_key_%s_values(){
-	# User defines completions for options by setting candidates
 	candidates=""
 }
 

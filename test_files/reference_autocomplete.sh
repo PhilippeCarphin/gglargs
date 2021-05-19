@@ -69,22 +69,16 @@ __suggest_nomScript_options(){
 
 __suggest_nomScript_args_for_option(){
 	case "$1" in
-		-k1)
-			__suggest_nomScript_key_k1_values
-			;;
-		-k2)
-			__suggest_nomScript_key_k2_values
-			;;
+		-k1) __suggest_nomScript_key_k1_values ;;
+		-k2) __suggest_nomScript_key_k2_values ;;
 	esac
 }
 
 __suggest_nomScript_key_k1_values(){
-	# User defines completions for options by setting candidates
 	candidates=""
 }
 
 __suggest_nomScript_key_k2_values(){
-	# User defines completions for options by setting candidates
 	candidates=""
 }
 
