@@ -1,4 +1,4 @@
-include colors.mk
+include color-makefile/colors.mk
 
 build_dir = build
 cclargs_src_dir = cclargs
