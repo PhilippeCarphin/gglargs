@@ -26,7 +26,7 @@ The generated file has "completion functions" for each key which we can modifiy
 to define how to complete values for that option.
 
 #+begin_src sh
-__suggest_key_jobfile_values(){
+__suggest_ord_soumet_key_jobfile_values(){
     candidates="one two three"
 }
 #+end_src
