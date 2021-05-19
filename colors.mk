@@ -2,7 +2,7 @@
 # Set echo based on $(shell uname)
 UNAME := $(shell uname)
 ifeq ($(UNAME),Linux)
-	ECHO := echo -e
+	ECHO := echo
 else
 	ECHO := echo
 endif
