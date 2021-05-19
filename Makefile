@@ -5,7 +5,6 @@ cclargs_src_dir = cclargs
 
 .PHONY: $(build_dir)/cclargs
 
-
 all: $(build_dir)/gglargs $(build_dir)/cclargs
 
 # EXECUTABLE TARGETS
@@ -61,11 +60,6 @@ $(build_dir)/cclargs_ord_soumet_completion.bash: $(build_dir)/cclargs
 $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
 	$(at) ./test_files/ord_soumet_gglargs_call.sh -generate-autocomplete 2> $@ 1>/dev/null
-
-# RULES
-$(build_dir)/%.o: $(cclargs_src_dir)/%.c
-	$(call make_echo_build_c_object)
-	$(at)gcc -c -DNOUI -DVERSION=1 $< -o $@
 
 clean:
 	$(at) rm -f build/*
