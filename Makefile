@@ -10,7 +10,7 @@ all: $(build_dir)/gglargs $(build_dir)/cclargs
 
 # EXECUTABLE TARGETS
 $(build_dir)/cclargs:
-	$(at) $(MAKE) -C $(cclargs_src_dir) cclargs
+	$(at) $(MAKE) -C $(cclargs_src_dir) --no-print-directory cclargs
 	$(at) cp $(cclargs_src_dir)/cclargs $@
 
 $(build_dir)/gglargs: gglargs.go cmd/gglargs/main.go
