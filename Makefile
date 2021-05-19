@@ -62,16 +62,6 @@ $(build_dir)/gglargs_ord_soumet_completion.bash: $(build_dir)/gglargs
 	$(call make_echo_generate_file)
 	$(at) ./test_files/ord_soumet_gglargs_call.sh -generate-autocomplete 2> $@ 1>/dev/null
 
-
-# Demo for `*pttmp--`
-.PHONY: smm
-$(build_dir)/smm: $(build_dir)/star_minus_minus.o
-	$(call make_echo_link_c_executable)
-	$(at)gcc $^ -o $@
-check_smm: $(build_dir)/smm
-	$(call make_echo_run_test,"Running demo for '*pttmp--'")
-	$(at)./$<
-
 # RULES
 $(build_dir)/%.o: $(cclargs_src_dir)/%.c
 	$(call make_echo_build_c_object)
